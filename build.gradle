@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'com.aurora.tokenizer'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation 'com.github.whyorean:playstore-api-v2:2.3'
+    implementation 'com.wizzardo:http:0.2+'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.aurora.tokenizer.Tokenizer'
+        )
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
