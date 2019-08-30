@@ -38,11 +38,7 @@ public class Tokenizer {
                     return response;
                 })
                 .append("/email", (request, response) -> getRandomEmail(request, response))
-                .append("/token/email/$email/", (request, response) -> {
-                    response = new TokenResource().handle(request, response);
-                    logger.info(String.valueOf(response.status().code));
-                    return response;
-                })
+                .append("/token/email/$email/", (request, response) -> new TokenResource().handle(request, response))
                 .append("/token-ac2dm/email/$email/", (request, response) -> new TokenAc2dmResource().handle(request, response));
         server.start();
     }
