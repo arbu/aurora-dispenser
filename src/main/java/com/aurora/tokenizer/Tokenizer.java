@@ -14,6 +14,7 @@ public class Tokenizer {
     static LinkedHashMap<String, String> authMap = new LinkedHashMap<>();
     static Logger logger = Logger.getGlobal();
 
+    //Put your username:password pair here..
     static {
         authMap.put("username@gmail.com", "password");
     }
