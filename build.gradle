@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.whyorean:playstore-api-v2:2.3'
-    implementation 'com.wizzardo:http:0.2+'
-    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    compile 'com.github.whyorean:playstore-api-v2:2.3'
+    compile 'com.wizzardo:http:0.2+'
+    compile 'com.squareup.okhttp3:okhttp:4.0.1'
 }
 
 jar {
