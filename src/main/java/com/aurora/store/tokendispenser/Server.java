@@ -6,7 +6,12 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -15,19 +20,33 @@ public class Server {
 
     public static final Logger LOG = LoggerFactory.getLogger(Server.class.getName());
 
-    static Map<String, String> authMap = new HashMap<>();
-
-    static {
-        authMap.put("username@gmail.com", "password");
-    }
+    static Map<String, List<String>> authMap;
 
     public static void main(String[] args) {
-        String host = "0.0.0.0";
+        try {
+            authMap = new HashMap<String, List<String>>();
+            List<String> lines = Files.readAllLines(Paths.get(System.getProperty("td.tokens", "tokens.txt")));
+            for (String line: lines) {
+                int split = line.indexOf(" ");
+                String email = line.substring(0, split),
+                       token = line.substring(split + 1);
+                if (!authMap.containsKey(email)) {
+                    authMap.put(email, new ArrayList<String>());
+                }
+                authMap.get(email).add(token);
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        String host = System.getProperty("td.host", "0.0.0.0");
         // Google auth requests are not fast, so lets limit max simultaneous threads
         Spark.threadPool(32, 2, 5000);
         Spark.ipAddress(host);
-        Spark.port(8443/*getHerokuAssignedPort()*/);
-        Spark.secure("your_keystore", "your_keystore_password", null, null);
+        Spark.port(Integer.parseInt(System.getProperty("td.port", "8443")));
+        if (System.getProperty("td.keystore") != null) {
+            Spark.secure(System.getProperty("td.keystore"), System.getProperty("td.keystore_password", "changeit"), null, null);
+        }
 
         Spark.before((req, res) -> {
             LOG.info(req.requestMethod() + " " + req.url());
@@ -39,7 +58,6 @@ public class Server {
         Spark.get("/", (req, res) -> "Aurora Token Dispenser");
         Spark.get("/status", (req, res) -> "Token dispenser is alive !");
         Spark.get("/token/email/:email", (req, res) -> new TokenResource().handle(req, res));
-        Spark.get("/token-ac2dm/email/:email", (req, res) -> new TokenAc2dmResource().handle(req, res));
         Spark.get("/email", (req, res) -> getRandomEmail(req, res));
         Spark.notFound((req, res) -> "You are lost !");
     }
